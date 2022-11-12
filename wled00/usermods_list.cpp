@@ -45,6 +45,8 @@
 #ifdef USERMOD_BME280
 #include "../usermods/BME280_v2/usermod_bme280.h"
 #endif
+
+// USERMOD_FOUR_LINE_DISPLAY
 #ifdef USERMOD_FOUR_LINE_DISPLAY
   #ifdef USE_ALT_DISPlAY
     #include "../usermods/usermod_v2_four_line_display_ALT/usermod_v2_four_line_display_ALT.h"

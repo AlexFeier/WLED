@@ -116,7 +116,8 @@ typedef enum {
   SSD1305,      // U8X8_SSD1305_128X32_ADAFRUIT_HW_I2C
   SSD1305_64,   // U8X8_SSD1305_128X64_ADAFRUIT_HW_I2C
   SSD1306_SPI,  // U8X8_SSD1306_128X32_NONAME_HW_SPI
-  SSD1306_SPI64 // U8X8_SSD1306_128X64_NONAME_HW_SPI
+  SSD1306_SPI64, // U8X8_SSD1306_128X64_NONAME_HW_SPI
+  Heltec_SSD1306_SPI64 // HELTECT OLED 
 } DisplayType;
 
 class FourLineDisplayUsermod : public Usermod {
@@ -195,7 +196,14 @@ class FourLineDisplayUsermod : public Usermod {
         isHW = (ioPin[0]==HW_PIN_CLOCKSPI && ioPin[1]==HW_PIN_DATASPI);
         PinManagerPinType pins[5] = { { ioPin[0], true }, { ioPin[1], true }, { ioPin[2], true }, { ioPin[3], true }, { ioPin[4], true }};
         if (!pinManager.allocateMultiplePins(pins, 5, po)) { type=NONE; return; }
-      } else {
+      }  
+      else if  (type == Heltec_SSD1306_SPI64){
+        isHW = (ioPin[0]==HW_PIN_SCL && ioPin[1]==HW_PIN_SDA);
+        PinManagerPinType pins[3] = { { ioPin[0], true }, { ioPin[1], true },{ ioPin[4], true } };
+        if (ioPin[0]==HW_PIN_SCL && ioPin[1]==HW_PIN_SDA) po = PinOwner::HW_I2C;  // allow multiple allocations of HW I2C bus pins
+        if (!pinManager.allocateMultiplePins(pins, 3, po)) { type=NONE; return; }
+      }
+      else {
         isHW = (ioPin[0]==HW_PIN_SCL && ioPin[1]==HW_PIN_SDA);
         PinManagerPinType pins[2] = { { ioPin[0], true }, { ioPin[1], true } };
         if (ioPin[0]==HW_PIN_SCL && ioPin[1]==HW_PIN_SDA) po = PinOwner::HW_I2C;  // allow multiple allocations of HW I2C bus pins
@@ -237,6 +245,11 @@ class FourLineDisplayUsermod : public Usermod {
         case SSD1306_SPI64:
           if (!isHW) u8x8 = (U8X8 *) new U8X8_SSD1306_128X64_NONAME_4W_SW_SPI(ioPin[0], ioPin[1], ioPin[2], ioPin[3], ioPin[4]);
           else       u8x8 = (U8X8 *) new U8X8_SSD1306_128X64_NONAME_4W_HW_SPI(ioPin[2], ioPin[3], ioPin[4]); // Pins are cs, dc, reset
+          lineHeight = 2;
+          break;
+        case Heltec_SSD1306_SPI64:
+          if (!isHW) u8x8 = (U8X8 *) new U8X8_SSD1306_128X64_NONAME_SW_I2C(ioPin[0], ioPin[1], ioPin[4]);
+          else       u8x8 = (U8X8 *) new U8X8_SSD1306_128X64_NONAME_HW_I2C(ioPin[0], ioPin[1], ioPin[4]); // SCL, SDA, reset
           lineHeight = 2;
           break;
         default:
@@ -659,7 +672,7 @@ class FourLineDisplayUsermod : public Usermod {
       for (byte i=0; i<5; i++) io_pin.add(ioPin[i]);
       top["help4Pins"]           = F("Clk,Data,CS,DC,RST"); // help for Settings page
       top["type"]                = type;
-      top["help4Type"]           = F("1=SSD1306,2=SH1106,3=SSD1306_128x64,4=SSD1305,5=SSD1305_128x64,6=SSD1306_SPI,7=SSD1306_SPI_128x64"); // help for Settings page
+      top["help4Type"]           = F("1=SSD1306,2=SH1106,3=SSD1306_128x64,4=SSD1305,5=SSD1305_128x64,6=SSD1306_SPI,7=SSD1306_SPI_128x64,8=Heltec_SSD1306_SPI64"); // help for Settings page
       top[FPSTR(_flip)]          = (bool) flip;
       top[FPSTR(_contrast)]      = contrast;
       top[FPSTR(_refreshRate)]   = refreshRate/1000;
